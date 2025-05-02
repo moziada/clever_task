@@ -121,7 +121,7 @@ def get_median_sale_price(
     return last_date_data
 
 def ordinal(n: int) -> str:
-    """Convert an integer into its ordinal representation (e.g., 1 -> '1st', 2 -> '2nd').
+    """Convert an integer into its ordinal representation (e.g., 1 -> '1st', 2 -> '2nd'), and in case of 0 (non valid rank) return empty string.
 
     Args:
         n (int): The integer to convert to an ordinal string.
@@ -129,6 +129,8 @@ def ordinal(n: int) -> str:
     Returns:
         str: The ordinal representation of the input integer.
     """
+    if n == 0:
+        return ""
     if 10 <= n % 100 <= 20:
         suffix = 'th'
     else:
@@ -163,7 +165,7 @@ def get_rank(
     Returns:
         pd.Series: A pandas Series containing the ordinal rankings of the input values.
     """
-    rankings = numbers_series.rank(ascending=ascending, method='min').astype(int)
+    rankings = numbers_series.rank(ascending=ascending, method='min').fillna(0).astype(int)
     rankings_with_suffix = rankings.apply(ordinal)
     return rankings_with_suffix
 
@@ -172,7 +174,7 @@ def generate_blurb(
         blurb_template: str,
         **columns
 ):
-    """Generate a blurb for each row in a DataFrame using any number of columns mapped to template placeholders
+    """Generate a blurb for each row in a DataFrame using any number of columns mapped to template placeholders, ignore place holder and return empty if any of the placeholder values is empty.
 
     Args:
         df (pd.DataFrame): A pandas DataFrame containing the data to use for generating the blurbs.
@@ -182,7 +184,12 @@ def generate_blurb(
     Returns:
         pd.Series: A pandas Series containing the generated blurbs for each row.
     """
-    return df.apply(lambda row: blurb_template.format(**{k: row[v] for k, v in columns.items()}), axis=1)
+    def format_blurb(row):
+        values = {k: row[v] for k, v in columns.items()}    # collect unpacked blurb template placeholders to dictionary
+        if all(value != "" for value in values.values()):
+            return blurb_template.format(**values)
+        return ""
+    return df.apply(format_blurb, axis=1)
 
 def load_override_data(path: str):
     """Load additional data with a CSV format that overrides the original data sources.
