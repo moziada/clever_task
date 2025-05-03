@@ -15,10 +15,34 @@ from utils import (
 def main():
     parser = argparse.ArgumentParser(description="Data pipeline settings")
     parser.add_argument(
-        '--override-data',
+        '--population-fname',
         type=str,
-        # default='inpu_data/override_data.csv'
-        help='Path to a CSV file with override data'
+        default='CENSUS_POPULATION_STATE.tsv',
+        help='Input census population file name'
+    )
+    parser.add_argument(
+        '--mhi-fname',
+        type=str,
+        default='CENSUS_MHI_STATE.csv',
+        help='Input census median house income file name'
+    )
+    parser.add_argument(
+        '--msp-fname',
+        type=str,
+        default='REDFIN_MEDIAN_SALE_PRICE.csv',
+        help='Input median sale price file name'
+    )
+    parser.add_argument(
+        '--region-keys-fname',
+        type=str,
+        default='KEYS.csv',
+        help='Input region mapping keys file name'
+    )
+    parser.add_argument(
+        '--override-data-fname',
+        type=str,
+        # default='override_data.csv',
+        help='Input override data CSV file name'
     )
     parser.add_argument(
         '--data-dir',
@@ -42,14 +66,14 @@ def main():
 
     # Reading data sources
     data_path = Path(args.data_dir)
-    census_population_df = pd.read_csv(data_path / 'CENSUS_POPULATION_STATE.tsv', sep='\t')
-    census_mhi_df = pd.read_csv(data_path / 'CENSUS_MHI_STATE.csv')
-    regions_key_df = pd.read_csv(data_path / 'KEYS.csv')
-    redfin_median_sale_price_df = pd.read_csv(data_path / 'REDFIN_MEDIAN_SALE_PRICE.csv', index_col=0, skiprows=1)
+    census_population_df = pd.read_csv(data_path / args.population_fname, sep='\t')
+    census_mhi_df = pd.read_csv(data_path / args.mhi_fname)
+    regions_key_df = pd.read_csv(data_path / args.region_keys_fname)
+    redfin_median_sale_price_df = pd.read_csv(data_path / args.msp_fname, index_col=0, skiprows=1)
 
-    if args.override_data:
-        print(f"Loading override data from {args.override_data}")
-        override_data_df = load_override_data(args.override_data)
+    if args.override_data_fname:
+        print(f"Loading override data from {args.override_data_fname}")
+        override_data_df = load_override_data(data_path / args.override_data_fname)
     else:
         override_data_df = pd.DataFrame()
 

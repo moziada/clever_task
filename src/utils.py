@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import os
+from pathlib import Path
 from typing import List, Optional
 
 def get_regions_mapping(
@@ -191,11 +192,11 @@ def generate_blurb(
         return ""
     return df.apply(format_blurb, axis=1)
 
-def load_override_data(path: str):
+def load_override_data(path: Path):
     """Load additional data with a CSV format that overrides the original data sources.
 
     Args:
-        path (str): The file path to the override data.
+        path (Path): The file path to the override data.
 
     Raises:
         ValueError: If the file format is not CSV.
@@ -203,7 +204,7 @@ def load_override_data(path: str):
     Returns:
         pd.DataFrame: A pandas DataFrame containing the loaded override data.
     """
-    if path.endswith(".csv"):
+    if path.suffix.lower() == '.csv':
         return pd.read_csv(path, index_col=0)
     else:
         raise ValueError("Unsupported override data format.")
