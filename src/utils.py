@@ -18,7 +18,7 @@ def get_regions_mapping(
         pd.Series: A pandas Series with region identifiers replaced by their corresponding Zillow region names that is used as an identifier in other data sources.
     """
     key_row_mapper = regions_key[['key_row', 'zillow_region_name']]
-    key_row_mapper.drop_duplicates(['key_row'], keep='first', inplace=True)
+    key_row_mapper = key_row_mapper.drop_duplicates(['key_row'], keep='first')
     key_row_mapper = key_row_mapper.set_index('key_row')
     key_row_mapper = key_row_mapper.to_dict()['zillow_region_name']
     mapped_regions = regions.map(key_row_mapper)
